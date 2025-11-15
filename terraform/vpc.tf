@@ -66,7 +66,7 @@ resource "aws_route_table_association" "private_c_assoc" {
 ############################################################
 resource "aws_security_group" "vpce_sg" {
   name        = "vpce-interface-sg"
-  description = "セキュリティグループ（各種インターフェース型VPCエンドポイント用）"
+  description = "Security group for interface VPC endpoints"
   vpc_id      = aws_vpc.devsecops_vpc.id
 
   # VPC 内部（10.0.0.0/16）からの HTTPS（443）アクセスを許可

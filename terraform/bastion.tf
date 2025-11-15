@@ -36,7 +36,7 @@ resource "aws_iam_instance_profile" "bastion_profile" {
 ###################################
 resource "aws_security_group" "bastion_sg" {
   name        = "devsecops-bastion-sg"
-  description = "踏み台EC2用セキュリティグループ（SSM + 内部通信）"
+  description = "Security group for bastion EC2 (SSM + internal traffic)"
   vpc_id      = aws_vpc.devsecops_vpc.id
 
   # VPC 内部（10.0.0.0/16）からの TCP 通信をすべて許可
