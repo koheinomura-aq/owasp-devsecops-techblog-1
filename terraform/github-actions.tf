@@ -6,30 +6,28 @@
 # 【パターン①】この AWS アカウントに GitHub OIDC Provider が
 # まだ存在しない場合に使う（初回セットアップ用）
 # ============================================================
-# ※ 今回の検証環境では既に存在していたためコメントアウトしている。
-# ※ 何もないアカウントで最初に構築する場合はこちらを有効化する。
 #
-# resource "aws_iam_openid_connect_provider" "github" {
-#   url = "https://token.actions.githubusercontent.com"
-#
-#   client_id_list = [
-#     "sts.amazonaws.com"
-#   ]
-#
-#   thumbprint_list = [
-#     # GitHub OIDC の既知フィンガープリント
-#     "9e99a48a9960b14926bb7f3b02e22da0ecd4e50f"
-#   ]
-# }
+resource "aws_iam_openid_connect_provider" "github" {
+   url = "https://token.actions.githubusercontent.com"
+
+   client_id_list = [
+     "sts.amazonaws.com"
+   ]
+
+   thumbprint_list = [
+     # GitHub OIDC の既知フィンガープリント
+     "9e99a48a9960b14926bb7f3b02e22da0ecd4e50f"
+   ]
+ }
 
 # ============================================
 # 【パターン②】既に GitHub OIDC Provider が
 # 他の Terraform / 手作業で作成済みの場合に使う
 # ============================================
 # → 既存の OIDC Provider を data で参照するだけ
-data "aws_iam_openid_connect_provider" "github" {
-  url = "https://token.actions.githubusercontent.com"
-}
+#data "aws_iam_openid_connect_provider" "github" {
+#  url = "https://token.actions.githubusercontent.com"
+#}
 
 ########################################
 # GitHub Actions から引き受けさせる IAM ロール
