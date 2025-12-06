@@ -4,6 +4,7 @@
 resource "aws_ecr_repository" "juiceshop_repo" {
   name                 = "devsecops-juiceshop"
   image_tag_mutability = "MUTABLE" # タグ上書きを許可
+  force_delete = true #削除時ECR内のイメージごと削除するよう設定
 
   image_scanning_configuration {
     scan_on_push = true # イメージ Push 時に脆弱性スキャンを実施
@@ -86,7 +87,7 @@ resource "aws_iam_role_policy_attachment" "fargate_exec_attach" {
 }
 
 # ECS Task Role（アプリが AWS にアクセスする際に利用するロール）
-# 今回 Juice Shop は外部アクセス不要のため空だが作成は必須
+# 今回Juice Shopは外部アクセス不要のため空だが作成は必須
 resource "aws_iam_role" "fargate_task_role" {
   name = "devsecops-fargate-task-role"
 
@@ -111,7 +112,7 @@ resource "aws_iam_role" "fargate_task_role" {
 # 内部 ALB（インターネット非公開）
 resource "aws_lb" "internal_alb" {
   name               = "devsecops-internal-alb"
-  internal           = true # 内部 ALB として構築
+  internal           = true # 内部ALBとして構築
   load_balancer_type = "application"
   subnets            = [aws_subnet.private_a.id, aws_subnet.private_c.id]
   security_groups    = [aws_security_group.alb_sg.id]
@@ -121,7 +122,7 @@ resource "aws_lb" "internal_alb" {
   }
 }
 
-# Staging 環境 Target Group
+# Staging環境Target Group
 resource "aws_lb_target_group" "stg_tg" {
   name        = "devsecops-stg-tg"
   port        = 3000
