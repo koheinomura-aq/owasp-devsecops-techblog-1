@@ -127,7 +127,7 @@ resource "aws_lb_target_group" "stg" {
   name        = "devsecops-stg-tg"
   port        = 3000
   protocol    = "HTTP"
-  vpc_id      = aws_vpc.devsecops_vpc.id
+  vpc_id      = aws_vpc.devsecops.id
   target_type = "ip"
 
   health_check {
@@ -140,7 +140,7 @@ resource "aws_lb_target_group" "prd" {
   name        = "devsecops-prd-tg"
   port        = 3000
   protocol    = "HTTP"
-  vpc_id      = aws_vpc.devsecops_vpc.id
+  vpc_id      = aws_vpc.devsecops.id
   target_type = "ip"
 
   health_check {
@@ -183,7 +183,7 @@ resource "aws_lb_listener" "stg" {
 # ALB Security Group（Bastionからのみアクセス可）
 resource "aws_security_group" "alb" {
   name        = "devsecops-alb-sg"
-  vpc_id      = aws_vpc.devsecops_vpc.id
+  vpc_id      = aws_vpc.devsecops.id
 
   # Bastion → ALBのHTTP/80 & 8080を許可
   ingress {
@@ -210,7 +210,7 @@ resource "aws_security_group" "alb" {
 # Fargate Security Group（ALB → Fargateのみ許可）
 resource "aws_security_group" "fargate" {
   name        = "devsecops-fargate-sg"
-  vpc_id      = aws_vpc.devsecops_vpc.id
+  vpc_id      = aws_vpc.devsecops.id
 
   ingress {
     from_port       = 3000

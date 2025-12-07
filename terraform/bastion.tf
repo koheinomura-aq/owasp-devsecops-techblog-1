@@ -37,7 +37,7 @@ resource "aws_iam_instance_profile" "bastion" {
 resource "aws_security_group" "bastion" {
   name        = "devsecops-bastion-sg"
   description = "Security group for bastion EC2 (SSM + internal traffic)"
-  vpc_id      = aws_vpc.devsecops_vpc.id
+  vpc_id      = aws_vpc.devsecops.id
 
   # VPC 内部（10.0.0.0/16）からの TCP 通信をすべて許可
   # → ECS や内部リソースへ接続するため
@@ -45,7 +45,7 @@ resource "aws_security_group" "bastion" {
     from_port   = 0
     to_port     = 65535
     protocol    = "tcp"
-    cidr_blocks = [aws_vpc.devsecops_vpc.cidr_block]
+    cidr_blocks = [aws_vpc.devsecops.cidr_block]
   }
 
   # アウトバウンドはすべて許可（VPC エンドポイント経由で外部に出る）
