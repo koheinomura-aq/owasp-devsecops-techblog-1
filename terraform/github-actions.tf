@@ -7,27 +7,27 @@
 # まだ存在しない場合に使う（初回セットアップ用）
 # ============================================================
 #
-resource "aws_iam_openid_connect_provider" "github" {
-   url = "https://token.actions.githubusercontent.com"
+#resource "aws_iam_openid_connect_provider" "github" {
+#   url = "https://token.actions.githubusercontent.com"
 
-   client_id_list = [
-     "sts.amazonaws.com"
-   ]
+#   client_id_list = [
+#     "sts.amazonaws.com"
+#   ]
 
-   thumbprint_list = [
-     # GitHub OIDC の既知フィンガープリント
-     "9e99a48a9960b14926bb7f3b02e22da0ecd4e50f"
-   ]
- }
+#   thumbprint_list = [
+#     # GitHub OIDC の既知フィンガープリント
+#     "9e99a48a9960b14926bb7f3b02e22da0ecd4e50f"
+#   ]
+# }
 
 # ============================================
 # 【パターン②】既にGitHub OIDC Providerが
 # 他のTerraform / 手作業で作成済みの場合に使う
 # ============================================
 # → 既存のOIDC Providerをdataで参照するだけ
-#data "aws_iam_openid_connect_provider" "github" {
-#  url = "https://token.actions.githubusercontent.com"
-#}
+data "aws_iam_openid_connect_provider" "github" {
+  url = "https://token.actions.githubusercontent.com"
+}
 
 ########################################
 # GitHub Actionsから引き受けさせるIAMロール
@@ -43,14 +43,15 @@ resource "aws_iam_role" "github_actions" {
       {
         Effect = "Allow"
         Principal = {
-          Federated = aws_iam_openid_connect_provider.github.arn
-          #Federated = data.aws_iam_openid_connect_provider.github.arn
+          #Federated = aws_iam_openid_connect_provider.github.arn
+          Federated = data.aws_iam_openid_connect_provider.github.arn
         }
         Action = "sts:AssumeRoleWithWebIdentity"
         Condition = {
           StringEquals = {
-            # aud: GitHub → AWS STS を呼び出していることをチェック
             "token.actions.githubusercontent.com:aud" = "sts.amazonaws.com"
+          }
+          StringLike = {
             # sub: このリポジトリからのワークフローだけを許可
             # 例: repo:オーナー名/リポジトリ名:*
             "token.actions.githubusercontent.com:sub" = "repo:${var.github_repo_owner}/${var.github_repo_name}:*"
