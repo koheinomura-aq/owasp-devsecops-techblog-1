@@ -1,9 +1,9 @@
-### 本リポジトリは**手を動かして学ぶOWASP DevSecOps Guideline - 第1回：CI/CD基盤構築編**の検証で使うソースコード一式が含まれています。
+### 本リポジトリは[**手を動かして学ぶOWASP DevSecOps Guideline - 第1回：CI/CD基盤構築編**](公開後記事リンクを貼る)の検証で使うソースコード一式が含まれています。
 
 ## ディレクトリ構成
 
 ```
-wasp-devsecops-techblog-1/    # プロジェクトルート
+wasp-devsecops-techblog-1/       # プロジェクトルート
 ├─ README.md                   
 ├─ .gitignore
 ├─ terraform/
