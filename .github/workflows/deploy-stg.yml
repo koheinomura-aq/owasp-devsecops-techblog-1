@@ -1,0 +1,68 @@
+name: CI/CD Pipeline (stg)
+
+on:
+  push:
+    branches:
+      - main # mainブランチにpushされたときにパイプラインが動作
+
+permissions:
+  id-token: write   # OIDCを使ったロール引き受けに必要
+  contents: read
+
+jobs:
+  build-and-push:
+    name: Build & Push Docker Image
+    runs-on: ubuntu-latest # GitHub Actionsの実行環境
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        # リポジトリのソースコードを取得
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }} # OIDCでAssumeするIAMロール
+          aws-region: ${{ secrets.AWS_REGION }}             # AWSリージョン
+        # ここでGitHubがOIDCを使ってAWS IAMロールを引き受ける
+
+      - name: Login to Amazon ECR
+        uses: aws-actions/amazon-ecr-login@v2
+        # ECRにログインしてdocker pushを行えるようにする
+
+      - name: Build Docker image
+        run: |
+          docker build -t juice:latest .
+        # Dockerfileをもとにイメージをビルド
+
+      - name: Tag image
+        run: |
+          docker tag juice:latest ${{ secrets.ECR_REPOSITORY }}:latest
+        # ビルドしたイメージにECRリポジトリのタグ（latest）を付与
+
+      - name: Push image to ECR
+        run: |
+          docker push ${{ secrets.ECR_REPOSITORY }}:latest
+        # ECRにDockerイメージをpush（latest タグ）
+
+  deploy-stg:
+    name: Deploy to Staging
+    runs-on: ubuntu-latest
+    needs: build-and-push #build & pushが成功したら実行
+
+    steps:
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
+          aws-region: ${{ secrets.AWS_REGION }}
+        # 再度AWSロールを引き受け（ジョブごとに必要）
+
+      - name: Deploy to ECS (stg)
+        run: |
+          aws ecs update-service \
+            --cluster ${{ secrets.ECS_CLUSTER }} \
+            --service ${{ secrets.ECS_SERVICE_STG }} \
+            --force-new-deployment
+        # ECSのServiceに対してForce New Deploymentを実行
+        # → 最新のECRイメージを使って再デプロイが走る

@@ -1,0 +1,32 @@
+name: Deploy to Production
+
+on:
+  workflow_dispatch:  # ← 手動実行のみ（mainへのpushでは動かない）
+  # 本番デプロイは人間がトリガーするようにし、誤デプロイを防ぐ
+
+permissions:
+  id-token: write   # AWS IAMロールの引き受け（OIDC）に必要
+  contents: read
+
+jobs:
+  deploy-prd:
+    name: Deploy to Production
+    runs-on: ubuntu-latest  # GitHub Actionsの実行環境
+
+    steps:
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }} # OIDCで引き受けるIAMロール
+          aws-region: ${{ secrets.AWS_REGION }}             # AWSリージョン
+        # GitHub ActionsがAWSにアクセスできるように認証・権限設定を行う
+
+      - name: Deploy to ECS (prd)
+        run: |
+          aws ecs update-service \
+            --cluster ${{ secrets.ECS_CLUSTER }} \
+            --service ${{ secrets.ECS_SERVICE_PRD }} \
+            --force-new-deployment
+        # ECSサービスに対してForce New Deploymentを実行
+        # → 最新タグのコンテナイメージ（latest など）を使用して再デプロイ
+        # ※イメージのbuild & pushは別のワークフローで実施されている前提
