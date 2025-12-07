@@ -2,13 +2,13 @@
 # VPC / サブネット情報の出力
 ########################################
 
-# 構築した VPC の ID
+# 構築したVPCのID
 output "vpc_id" {
   description = "VPC ID"
-  value       = aws_vpc.devsecops_vpc.id
+  value       = aws_vpc.devsecops.id
 }
 
-# 各プライベートサブネットの ID 一覧
+# 各プライベートサブネットのID一覧
 output "subnets" {
   description = "Private subnets for all resources"
   value = {
@@ -21,19 +21,19 @@ output "subnets" {
 # 接続・アクセスに関する情報の出力
 ########################################
 
-# SSM Session Manager で接続する踏み台 EC2 のインスタンス ID
+# SSM Session Managerで接続する踏み台EC2のインスタンスID
 output "bastion_instance_id" {
   description = "Instance ID of the Bastion host for SSM connection"
   value       = aws_instance.bastion.id
 }
 
-# 内部 ALB の DNS 名（ポートフォワード時に利用）
+# 内部ALBのDNS名（ポートフォワード時に利用）
 output "alb_dns_name" {
   description = "Internal ALB DNS Name (for SSM Port Forwarding)"
-  value       = aws_lb.internal_alb.dns_name
+  value       = aws_lb.internal.dns_name
 }
 
-# 各種 Interface 型 VPC エンドポイントの DNS 名一覧
+# 各種Interface型VPCエンドポイントの DNS 名一覧
 output "vpc_endpoints_dns" {
   description = "DNS entries for Interface VPC Endpoints"
   value = {
@@ -47,35 +47,35 @@ output "vpc_endpoints_dns" {
 }
 
 ########################################
-# GitHub Actions 用 CI/CD パラメータ出力
+# GitHub Actions用CI/CDパラメータ出力
 ########################################
 
-# GitHub Actions から参照する ECR リポジトリ URL
+# GitHub Actionsから参照するECRリポジトリURL
 output "ecr_repository_url" {
   description = "ECR repository URL for GitHub Actions"
-  value       = aws_ecr_repository.juiceshop_repo.repository_url
+  value       = aws_ecr_repository.juiceshop.repository_url
 }
 
-# GitHub Actions から参照する ECS クラスタ名
+# GitHub Actionsから参照するECSクラスタ名
 output "ecs_cluster_name" {
   description = "ECS cluster name for GitHub Actions"
-  value       = aws_ecs_cluster.devsecops_cluster.name
+  value       = aws_ecs_cluster.devsecops.name
 }
 
-# Staging 環境の ECS サービス名
+# Staging環境のECSサービス名
 output "stg_service_name" {
   description = "Staging ECS service name"
-  value       = aws_ecs_service.stg_service.name
+  value       = aws_ecs_service.stg.name
 }
 
-# Production 環境の ECS サービス名
+# Production環境のECSサービス名
 output "prd_service_name" {
   description = "Production ECS service name"
-  value       = aws_ecs_service.prd_service.name
+  value       = aws_ecs_service.prd.name
 }
 
-# GitHub Actions から Assume させる IAM ロールの ARN
-# → `terraform output github_actions_role_arn` で取得し、GitHub Secrets に設定する
+# GitHub ActionsからAssumeさせるIAMロールのARN
+# → terraform output github_actions_role_arnで取得し、GitHub Secretsに設定する
 output "github_actions_role_arn" {
   description = "IAM role ARN for GitHub Actions (OIDC)"
   value       = aws_iam_role.github_actions.arn

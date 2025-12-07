@@ -3,7 +3,7 @@
 ########################################
 
 # ============================================================
-# 【パターン①】この AWS アカウントに GitHub OIDC Provider が
+# 【パターン①】このAWSアカウントにGitHub OIDC Providerが
 # まだ存在しない場合に使う（初回セットアップ用）
 # ============================================================
 #
@@ -21,22 +21,22 @@ resource "aws_iam_openid_connect_provider" "github" {
  }
 
 # ============================================
-# 【パターン②】既に GitHub OIDC Provider が
-# 他の Terraform / 手作業で作成済みの場合に使う
+# 【パターン②】既にGitHub OIDC Providerが
+# 他のTerraform / 手作業で作成済みの場合に使う
 # ============================================
-# → 既存の OIDC Provider を data で参照するだけ
+# → 既存のOIDC Providerをdataで参照するだけ
 #data "aws_iam_openid_connect_provider" "github" {
 #  url = "https://token.actions.githubusercontent.com"
 #}
 
 ########################################
-# GitHub Actions から引き受けさせる IAM ロール
+# GitHub Actionsから引き受けさせるIAMロール
 ########################################
 resource "aws_iam_role" "github_actions" {
   name = "devsecops-github-actions-role"
 
-  # GitHub Actions の OIDC トークンを使って
-  # sts:AssumeRoleWithWebIdentity できるようにするための信頼ポリシー
+  # GitHub ActionsのOIDCトークンを使って
+  # sts:AssumeRoleWithWebIdentityできるようにするための信頼ポリシー
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
     Statement = [
@@ -53,7 +53,7 @@ resource "aws_iam_role" "github_actions" {
             "token.actions.githubusercontent.com:aud" = "sts.amazonaws.com"
             # sub: このリポジトリからのワークフローだけを許可
             # 例: repo:オーナー名/リポジトリ名:*
-            "token.actions.githubusercontent.com:sub" = "repo:koheinomura-aq/owasp-devsecops-techblog-1:*"
+            "token.actions.githubusercontent.com:sub" = "repo:${var.github_repo_owner}/${var.github_repo_name}:*"
           }
         }
       }
@@ -62,16 +62,16 @@ resource "aws_iam_role" "github_actions" {
 }
 
 ########################################
-# GitHub Actions に付与する権限
-# （ECR への push + ECS のデプロイ更新）
+# GitHub Actionsに付与する権限
+# （ECRへのpush + ECSのデプロイ更新）
 ########################################
-resource "aws_iam_role_policy" "github_actions_policy" {
+resource "aws_iam_role_policy" "github_actions" {
   role = aws_iam_role.github_actions.id
 
   policy = jsonencode({
     Version = "2012-10-17"
     Statement = [
-      # ECR ログイン & イメージの push / pull
+      # ECRログイン&イメージの push / pull
       {
         Effect = "Allow"
         Action = [
@@ -86,7 +86,7 @@ resource "aws_iam_role_policy" "github_actions_policy" {
         ]
         Resource = "*"
       },
-      # ECS サービスの更新（force-new-deployment など）
+      # ECSサービスの更新（force-new-deployment など）
       {
         Effect = "Allow"
         Action = [
