@@ -3,7 +3,7 @@
 ## ディレクトリ構成
 
 ```
-wasp-devsecops-techblog-1/       # プロジェクトルート
+owasp-devsecops-techblog-1/       # プロジェクトルート
 ├─ README.md                   
 ├─ .gitignore
 ├─ terraform/
